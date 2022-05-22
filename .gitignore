@@ -1,4 +1,4 @@
-node_modules/
+/node_modules
 .expo/
 dist/
 npm-debug.*
@@ -7,7 +7,7 @@ npm-debug.*
 *.p12
 *.key
 *.mobileprovision
-*.orig.*
+.orig.
 web-build/
 
 # macOS
