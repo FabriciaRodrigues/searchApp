@@ -1,97 +1,78 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  ScrollView,
-  Button,
-} from "react-native";
 import React, { useState } from "react";
-import StarRating from "react-native-star-rating";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, View, TextInput, Button } from "react-native";
+import rating from "./rating";
 
 export default function App() {
-  const [book, setBook] = useState(null);
-  const [starts, setStars] = useState(Number);
-  const [search, setSearch] = useState(null);
+  const [resultados, setResult] = useState([]);
 
-  const getBookData = (title) => {
-    const endpoint = `https://hn.algolia.com/api/v1/search?query=${title}/`;
+  const [key, setKey] = useState("");
 
-    fetch(endpoint)
-      .then((resposta) => resposta.json())
+  const getRusultadosPesquisa = (key) => {
+    fetch(`https://hn.algolia.com/api/v1/search?query=chave/${key}`)
+      .then((response) => response.json())
       .then((data) => {
-        const products = data.hits;
-        setBook(products);
+        setResult(data.hits);
       });
   };
 
-  onStarRatingPress = (rating) => {
-    setStars(rating);
-  };
-
   return (
-    <View style={styles.container}>
-      <View style={styles.top}>
-        <Text style={styles.topTitle}>Livraria</Text>
+    <View>
+      <View style={styles.titulo}>
+        <h1>Pesquisa:</h1>
       </View>
-      <ScrollView>
+
+      <View style={styles.container}>
         <TextInput
-          style={styles.input}
-          placeholder="Pesquisar por titulo"
-          onChangeText={(newText) => setSearch(newText)}
-          defaultValue={search}
+          style={styles.textoInput}
+          placeholder={"Digite aqui"}
+          value={key}
+          onChangeText={(serachKey) => setKey(serachKey)}
         />
-        <Button title="Pesquisar" onPress={() => getBookData(search)} />
-        {book?.map((b) =>
-          starts?.map((s) => (
-            <View style={styles.cardContainer}>
-              <StarRating
-                disabled={false}
-                maxStars={5}
-                rating={s.value}
-                selectedStar={(rating) => onStarRatingPress(rating)}
-              />
-              <Text style={styles.text}>Titulo: {b.title}</Text>
-              <Text style={styles.text}>Autor: {b.author}</Text>
-              <Text style={styles.text}>url: {b.url}</Text>
-            </View>
-          ))
-        )}
-      </ScrollView>
+        <Button title="Pesquisar" onPress={() => getRusultadosPesquisa(search)} />
+      </View>
+
+      {resultados.map((resultado) => (
+        <View style={styles.resultado}>
+          <li>Autor: {resultado.author}</li>
+          <li>Título: {resultado.title}</li>
+          <li>URL: {resultado.url}</li>
+          <li><rating/></li>
+        </View>
+      ))
+      <StatusBar style="auto" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  titulo: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-  input: {
-    borderWidth: 2,
-    borderColor: "#000",
-    height: 40,
+  container: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+
+  textoInput: {
+    justifyContent: "center",
+    alignItems: "center",
     textAlign: "center",
-    marginBottom: 12,
+    borderWidth: 3,
+    height: 35,
   },
 
-  top: {
-    padding: 20,
-    paddingTop: 40,
-    marginBottom: 20,
-    backgroundColor: "#5671A8",
-  },
-  topTitle: {
-    fontSize: 22,
+  resultado: {
+    flex: 1,
     marginBottom: 10,
-    color: "#fff",
-    textAlign: "center",
-  },
-
-  cardContainer: {
-    backgroundColor: "#5671A8",
-    borderRadius: 4,
+    width: "100%",
+    minHeight: 100,
+    borderWidth: 3,
+    justifyContent: "flex-end",
     marginTop: 10,
-    marginHorizontal: 20,
-    padding: 10,
   },
-  text: { fontSize: 16, color: "#fff" },
 });
